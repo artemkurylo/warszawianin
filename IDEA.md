@@ -44,7 +44,7 @@
 | DI | Hilt | Simple setup |
 | Camera | CameraX + Photo Picker | Reliable |
 | Location | FusedLocationProvider | Accurate GPS |
-| LLM | Google Gemini 1.5 Flash | Free, vision-capable, Android SDK |
+| LLM | Google Gemini 2.5 Flash | Free tier, vision+thinking, fast, Android SDK |
 | Storage | Room | Local ticket list |
 | Submission | ACTION_SEND email intent | Zero backend needed |
 | Architecture | Single-module MVVM | Hackathon simplicity |
@@ -146,6 +146,26 @@ enum class ReportStatus { DRAFT, SENT }
 ```
 
 ---
+
+## LLM Model Choice
+
+Google AI Studio (ai.google.dev) free tier — **no billing required**, just an API key.
+
+| Model | Speed | Quality | Free Tier | Our Pick |
+|-------|-------|---------|-----------|----------|
+| Gemini 2.5 Flash | ⚡ Fast | Very good | Generous (high RPM/RPD) | ✅ **Primary** |
+| Gemini 2.5 Pro | 🐢 Slower | Excellent | Available but lower RPM | Fallback if Flash isn't good enough |
+| Gemini 3.1 Pro Preview | 🐢 Slower | Best | Preview (may be unstable) | Future upgrade |
+| Gemini 2.5 Flash-Lite | ⚡⚡ Fastest | Good | Very generous | If we need speed over accuracy |
+
+**Decision: `gemini-2.5-flash`**
+- Has "thinking" capability (better reasoning about what's in the photo)
+- Multimodal (image + text input natively)
+- Fast enough for good UX (< 3s response)
+- Free tier is very generous for a hackathon/beta
+- Available via `com.google.ai.client.generativeai` Android SDK
+
+Get API key at: https://aistudio.google.com/apikey
 
 ## Gemini Prompt
 
