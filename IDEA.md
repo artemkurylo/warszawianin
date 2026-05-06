@@ -11,14 +11,21 @@
 ```
 ┌────────────────────┐       ┌─────────────────────┐       ┌─────────────────────┐
 │   Ticket List      │──(+)──│  Photo Capture      │──────▶│  AI Draft + Submit  │
-│   (your reports)   │       │  Camera or Gallery   │       │  Edit / Send        │
-└────────────────────┘       └─────────────────────┘       └─────────────────────┘
+│  (your reports +   │       │  Camera or Gallery   │       │  Edit / Send        │
+│   neighbours feed) │       └─────────────────────┘       └─────────────────────┘
+└────────┬───────────┘
+         │ (tab)
+┌────────▼───────────┐
+│  Neighbourhood     │
+│  Feed (mock)       │
+│  Reports nearby    │
+└────────────────────┘
 ```
 
 **Screen 1 — Ticket List (Home)**
-- Shows previously created reports (stored locally in Room)
-- Each ticket: thumbnail, title, date, status (draft / sent)
-- FAB button (+) → opens photo capture
+- Two tabs: **Moje zgłoszenia** (your reports) and **W okolicy** (neighbours' reports)
+- Your tab: thumbnail, title, date, status (draft / sent); FAB button (+) → opens photo capture
+- Neighbours tab: shows mock reports from nearby residents (see mock data below)
 
 **Screen 2 — Photo Capture**
 - Two options: take a photo (camera) or pick from gallery
@@ -57,9 +64,11 @@
 ```
 ┌─────────────────────────────┐
 │  Warszawianin        [gear] │  ← TopBar
-├─────────────────────────────┤
+├──────────────┬──────────────┤
+│ Moje zgłosz.│  W okolicy   │  ← Tabs
+├──────────────┴──────────────┤
 │  ┌───┬────────────────────┐ │
-│  │ 📷│ Dziura w chodniku   │ │  ← ticket card
+│  │ 📷│ Dziura w chodniku   │ │  ← your ticket card
 │  │   │ ul. Marszałkowska  │ │
 │  │   │ 2 godz. temu • Wysłane│
 │  └───┴────────────────────┘ │
@@ -70,6 +79,32 @@
 │  └───┴────────────────────┘ │
 │                             │
 │                     [ + ]   │  ← FAB
+└─────────────────────────────┘
+```
+
+### 1b. Neighbourhood Feed Tab ("W okolicy")
+```
+┌─────────────────────────────┐
+│  Warszawianin        [gear] │
+├──────────────┬──────────────┤
+│ Moje zgłosz.│  W okolicy   │  ← active tab
+├──────────────┴──────────────┤
+│  📍 W promieniu 500 m       │
+│  ┌───┬────────────────────┐ │
+│  │ 📷│ Porzucony rower     │ │  ← neighbour card
+│  │   │ ul. Złota 44       │ │
+│  │   │ Anna K. • 1 godz.  │ │
+│  └───┴────────────────────┘ │
+│  ┌───┬────────────────────┐ │
+│  │ 📷│ Graffiti na bramie  │ │
+│  │   │ ul. Emilii Plater  │ │
+│  │   │ Tomasz W. • 3 godz.│ │
+│  └───┴────────────────────┘ │
+│  ┌───┬────────────────────┐ │
+│  │ 📷│ Uszkodzony kosz     │ │
+│  │   │ Park Saski         │ │
+│  │   │ Maria S. • wczoraj │ │
+│  └───┴────────────────────┘ │
 └─────────────────────────────┘
 ```
 
@@ -120,6 +155,117 @@
 │  [ 🔄 Popraw ]  [ ✉️ Wyślij ]│
 └─────────────────────────────┘
 ```
+
+---
+
+## Mock Neighbour Requests
+
+Hardcoded in-memory list shown in the **"W okolicy"** tab. No network call needed for MVP — seed data ships with the app. Replace with real API later.
+
+```kotlin
+// NeighbourReport.kt — simple data class, no Room needed
+data class NeighbourReport(
+    val id: Int,
+    val photoRes: Int,          // drawable resource id (placeholder images)
+    val title: String,
+    val category: String,
+    val description: String,
+    val address: String,
+    val authorName: String,     // first name + last initial only
+    val hoursAgo: Int,          // relative timestamp label
+    val latitude: Double,
+    val longitude: Double
+)
+
+// MockNeighbourData.kt
+object MockNeighbourData {
+    val reports = listOf(
+        NeighbourReport(
+            id = 1,
+            photoRes = R.drawable.mock_bike,
+            title = "Porzucony rower blokuje wejście",
+            category = "infrastruktura",
+            description = "Rower bez kłódki stoi przy bramie od ponad tygodnia, " +
+                          "utrudniając wejście do budynku.",
+            address = "ul. Złota 44, Warszawa",
+            authorName = "Anna K.",
+            hoursAgo = 1,
+            latitude = 52.2297, longitude = 21.0122
+        ),
+        NeighbourReport(
+            id = 2,
+            photoRes = R.drawable.mock_graffiti,
+            title = "Graffiti na bramie kamienicy",
+            category = "czystość",
+            description = "Duży napis sprayem na zabytkowej bramie przy ul. Emilii Plater. " +
+                          "Wymaga interwencji konserwatora.",
+            address = "ul. Emilii Plater 12, Warszawa",
+            authorName = "Tomasz W.",
+            hoursAgo = 3,
+            latitude = 52.2315, longitude = 21.0098
+        ),
+        NeighbourReport(
+            id = 3,
+            photoRes = R.drawable.mock_bin,
+            title = "Uszkodzony kosz na śmieci",
+            category = "czystość",
+            description = "Metalowy kosz jest przewrócony i przyspawany do słupka — " +
+                          "śmieci wysypują się na ścieżkę.",
+            address = "Park Saski, aleja środkowa, Warszawa",
+            authorName = "Maria S.",
+            hoursAgo = 22,
+            latitude = 52.2422, longitude = 21.0058
+        ),
+        NeighbourReport(
+            id = 4,
+            photoRes = R.drawable.mock_pothole,
+            title = "Głęboka dziura przy przejściu dla pieszych",
+            category = "drogi",
+            description = "Wyrwa w asfalcie tuż przed pasami — niebezpieczna dla " +
+                          "pieszych i rowerzystów, szczególnie nocą.",
+            address = "ul. Świętokrzyska / Nowy Świat, Warszawa",
+            authorName = "Piotr M.",
+            hoursAgo = 5,
+            latitude = 52.2361, longitude = 21.0178
+        ),
+        NeighbourReport(
+            id = 5,
+            photoRes = R.drawable.mock_lamp,
+            title = "Niedziałająca latarnia uliczna",
+            category = "oświetlenie",
+            description = "Latarnia nie świeci od co najmniej trzech dni. " +
+                          "Odcinek chodnika jest całkowicie ciemny po zmroku.",
+            address = "ul. Chmielna 30, Warszawa",
+            authorName = "Karolina B.",
+            hoursAgo = 48,
+            latitude = 52.2288, longitude = 21.0145
+        ),
+        NeighbourReport(
+            id = 6,
+            photoRes = R.drawable.mock_tree,
+            title = "Połamane drzewo zwisa nad chodnikiem",
+            category = "zieleń",
+            description = "Po wczorajszej burzy konar drzewa zwisa nisko nad chodnikiem " +
+                          "i stanowi zagrożenie dla przechodniów.",
+            address = "ul. Marszałkowska 84, Warszawa",
+            authorName = "Robert J.",
+            hoursAgo = 10,
+            latitude = 52.2340, longitude = 21.0060
+        )
+    )
+}
+```
+
+### Placeholder drawables needed
+Add 6 placeholder images to `res/drawable/`:
+- `mock_bike.jpg` — parked/abandoned bicycle
+- `mock_graffiti.jpg` — graffiti on a wall/gate
+- `mock_bin.jpg` — broken/overturned bin
+- `mock_pothole.jpg` — road pothole
+- `mock_lamp.jpg` — street lamp
+- `mock_tree.jpg` — fallen/damaged tree branch
+
+Use free-license photos from Unsplash (search: "Warsaw street problem") or generate placeholders with a solid colour + label for hackathon.
 
 ---
 
@@ -206,6 +352,8 @@ Wysłano z aplikacji Warszawianin
 - [ ] **T10** — Permissions handling (camera, location, storage)
 - [ ] **T11** — Basic error states & loading UI
 - [ ] **T12** — Reverse geocoding (GPS → address string)
+- [ ] **T13** — Neighbourhood feed tab with mock `NeighbourReport` data
+- [ ] **T14** — NeighbourReportCard composable (photo, title, author, relative time)
 
 ---
 
@@ -221,6 +369,7 @@ Wysłano z aplikacji Warszawianin
 - ❌ Onboarding
 - ❌ Tests (sorry)
 - ❌ ProGuard / release build
+- ❌ Real neighbour API (mock data only for now)
 
 ---
 
