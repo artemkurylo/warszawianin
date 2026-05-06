@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import pl.warszawianin.ui.screens.history.HistoryScreen
 import pl.warszawianin.ui.screens.photocapture.PhotoCaptureScreen
 import pl.warszawianin.ui.screens.reportdraft.ReportDraftScreen
 import pl.warszawianin.ui.screens.ticketlist.TicketListScreen
@@ -12,6 +13,7 @@ object Routes {
     const val TICKET_LIST = "ticket_list"
     const val PHOTO_CAPTURE = "photo_capture"
     const val REPORT_DRAFT = "report_draft/{reportId}"
+    const val HISTORY = "history"
 
     fun reportDraft(reportId: Long) = "report_draft/$reportId"
 }
@@ -26,7 +28,10 @@ fun WarszawianinNavHost() {
     ) {
         composable(Routes.TICKET_LIST) {
             TicketListScreen(
-                onAddReport = { navController.navigate(Routes.PHOTO_CAPTURE) }
+                onAddReport = { navController.navigate(Routes.PHOTO_CAPTURE) },
+                onReportClick = { reportId ->
+                    navController.navigate(Routes.reportDraft(reportId))
+                }
             )
         }
 
@@ -47,9 +52,22 @@ fun WarszawianinNavHost() {
                 reportId = reportId,
                 onBack = { navController.popBackStack() },
                 onSubmitted = {
+                    navController.navigate(Routes.HISTORY) {
+                        popUpTo(Routes.TICKET_LIST)
+                    }
+                }
+            )
+        }
+
+        composable(Routes.HISTORY) {
+            HistoryScreen(
+                onBack = {
                     navController.navigate(Routes.TICKET_LIST) {
                         popUpTo(Routes.TICKET_LIST) { inclusive = true }
                     }
+                },
+                onReportClick = { reportId ->
+                    navController.navigate(Routes.reportDraft(reportId))
                 }
             )
         }
