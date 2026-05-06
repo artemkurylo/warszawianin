@@ -112,14 +112,15 @@ class ReportDraftViewModelTest {
     }
 
     @Test
-    fun `triggers geocoding when report has coords but no address`() = runTest {
+    fun `sets hardcoded address when report has no address`() = runTest {
         every { reportDao.getById(1L) } returns flowOf(testReport.copy(address = null))
-        coEvery { geocoderService.reverseGeocode(any(), any()) } returns "ul. Testowa 5"
+        coEvery { reportDao.update(any()) } returns Unit
 
         val viewModel = createViewModel()
         advanceUntilIdle()
 
-        coVerify { geocoderService.reverseGeocode(52.2297, 21.0122) }
+        // Should update with hardcoded demo address
+        coVerify { reportDao.update(match { it.address == "ul. Widok 16/1, Warszawa" }) }
     }
 
     @Test

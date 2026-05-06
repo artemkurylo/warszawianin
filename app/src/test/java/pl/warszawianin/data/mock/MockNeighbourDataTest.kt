@@ -44,4 +44,17 @@ class MockNeighbourDataTest {
             assertTrue("Report ${report.id} has negative supporters", report.supporters >= 0)
         }
     }
+
+    @Test
+    fun `all reports have demo photo asset assigned`() {
+        MockNeighbourData.reports.forEach { report ->
+            assertTrue("Report ${report.id} has blank photo asset", report.demoPhotoAsset.isNotBlank())
+            assertTrue("Report ${report.id} photo should end in .jpg", report.demoPhotoAsset.endsWith(".jpg"))
+        }
+    }
+
+    @Test
+    fun `PRIMARY_DEMO_PHOTO is a valid filename`() {
+        assertTrue(MockNeighbourData.PRIMARY_DEMO_PHOTO.endsWith(".jpg"))
+    }
 }

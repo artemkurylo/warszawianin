@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -296,6 +297,11 @@ private fun NeighbourhoodTab() {
 
 @Composable
 private fun NeighbourReportCard(report: NeighbourReport) {
+    val context = LocalContext.current
+    val photoFile = remember(report.demoPhotoAsset) {
+        pl.warszawianin.util.DemoPhotoUtils.copyDemoPhotoToStorage(context, report.demoPhotoAsset)
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -303,15 +309,15 @@ private fun NeighbourReportCard(report: NeighbourReport) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(modifier = Modifier.padding(12.dp)) {
-            Box(
+            AsyncImage(
+                model = photoFile,
+                contentDescription = report.title,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFE0E0E0)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("📷", fontSize = 24.sp)
-            }
+                    .background(Color(0xFFE0E0E0))
+            )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(

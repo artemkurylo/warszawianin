@@ -6,5 +6,6 @@ data class NeighbourReport(
     val category: String,
     val distance: String,
     val supporters: Int,
-    val address: String
+    val address: String,
+    val demoPhotoAsset: String  // filename in assets/demo_photos/
 )

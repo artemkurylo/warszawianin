@@ -56,12 +56,16 @@ class ReportDraftViewModel @Inject constructor(
                 }
 
                 // Start geocoding in parallel if needed
-                if (report.address == null && report.latitude != null && report.longitude != null) {
-                    launch { geocodeAddress(report) }
-                }
-
-                // If title is blank, trigger AI analysis
-                if (report.title.isBlank()) {
+                // In demo mode, always use hardcoded address
+                if (report.address == null) {
+                    val updatedWithAddress = report.copy(address = "ul. Widok 16/1, Warszawa")
+                    reportDao.update(updatedWithAddress)
+                    if (updatedWithAddress.title.isBlank()) {
+                        analyzeWithGemini(updatedWithAddress)
+                    } else {
+                        _uiState.value = ReportDraftUiState.Ready(updatedWithAddress)
+                    }
+                } else if (report.title.isBlank()) {
                     analyzeWithGemini(report)
                 } else {
                     _uiState.value = ReportDraftUiState.Ready(report)

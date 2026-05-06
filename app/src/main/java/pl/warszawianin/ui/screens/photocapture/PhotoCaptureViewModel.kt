@@ -12,8 +12,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pl.warszawianin.data.local.ReportDao
 import pl.warszawianin.data.location.LocationProvider
+import pl.warszawianin.data.mock.MockNeighbourData
 import pl.warszawianin.data.model.Report
 import pl.warszawianin.data.model.ReportStatus
+import pl.warszawianin.util.DemoPhotoUtils
 import java.io.File
 import java.io.InputStream
 import java.util.UUID
@@ -115,6 +117,36 @@ class PhotoCaptureViewModel @Inject constructor(
                 _state.value = PhotoCaptureState.Done(id)
             } catch (e: Exception) {
                 _state.value = PhotoCaptureState.Error("Nie udało się zapisać zdjęcia")
+            }
+        }
+    }
+
+    fun useDemoPhoto() {
+        viewModelScope.launch {
+            _state.value = PhotoCaptureState.Saving
+            try {
+                val demoFile = DemoPhotoUtils.copyDemoPhotoToStorage(
+                    context, MockNeighbourData.PRIMARY_DEMO_PHOTO
+                )
+
+                val location = locationProvider.getCurrentLocation()
+
+                val report = Report(
+                    photoUri = demoFile.toUri().toString(),
+                    latitude = location?.latitude ?: 52.2297,
+                    longitude = location?.longitude ?: 21.0122,
+                    address = "ul. Marszałkowska 12",
+                    category = "",
+                    title = "",
+                    description = "",
+                    status = ReportStatus.DRAFT,
+                    createdAt = System.currentTimeMillis(),
+                    sentAt = null
+                )
+                val id = reportDao.insert(report)
+                _state.value = PhotoCaptureState.Done(id)
+            } catch (e: Exception) {
+                _state.value = PhotoCaptureState.Error("Nie udało się załadować zdjęcia demo")
             }
         }
     }
