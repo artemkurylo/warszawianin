@@ -41,8 +41,12 @@ class PhotoCaptureViewModel @Inject constructor(
     private val photosDir: File
         get() = File(context.filesDir, "photos").also { it.mkdirs() }
 
+    // Track the actual file path for the current camera capture
+    private var pendingPhotoFile: File? = null
+
     fun createPhotoUri(): Uri {
         val file = File(photosDir, "${UUID.randomUUID()}.jpg")
+        pendingPhotoFile = file
         return androidx.core.content.FileProvider.getUriForFile(
             context,
             "${context.packageName}.fileprovider",
@@ -50,18 +54,12 @@ class PhotoCaptureViewModel @Inject constructor(
         )
     }
 
-    fun getPhotoFileFromUri(uri: Uri): File? {
-        // For camera URIs that point to our files dir
-        return uri.path?.let { File(it) }?.takeIf { it.exists() }
-    }
-
     fun onPhotoTaken(uri: Uri) {
         viewModelScope.launch {
             _state.value = PhotoCaptureState.Saving
             try {
-                // The photo is already saved at the URI we created
-                val path = uri.path ?: throw IllegalStateException("Invalid URI")
-                val file = File(path)
+                val file = pendingPhotoFile
+                    ?: throw IllegalStateException("No pending photo file")
                 if (!file.exists()) throw IllegalStateException("Photo file not found")
 
                 // Get location (non-blocking, 5s timeout)
@@ -80,6 +78,7 @@ class PhotoCaptureViewModel @Inject constructor(
                     sentAt = null
                 )
                 val id = reportDao.insert(report)
+                pendingPhotoFile = null
                 _state.value = PhotoCaptureState.Done(id)
             } catch (e: Exception) {
                 _state.value = PhotoCaptureState.Error("Nie udało się zapisać zdjęcia")
