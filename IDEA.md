@@ -9,10 +9,10 @@
 ## MVP User Flow
 
 ```
-┌────────────────────┐       ┌─────────────────────┐       ┌─────────────────────┐
-│   Ticket List      │──(+)──│  Photo Capture      │──────▶│  AI Draft + Submit  │
-│  (your reports +   │       │  Camera or Gallery   │       │  Edit / Send        │
-│   neighbours feed) │       └─────────────────────┘       └─────────────────────┘
+┌────────────────────┐       ┌─────────────────────┐       ┌─────────────────────┐       ┌──────────────────┐
+│   Home Screen      │──(+)──│  Photo Capture      │──────▶│  Report Preview     │──────▶│  History Screen  │
+│  (your reports +   │       │  Camera or Gallery   │       │  AI Draft + Submit  │       │  All sent reports│
+│   neighbours feed) │       └─────────────────────┘       └─────────────────────┘       └──────────────────┘
 └────────┬───────────┘
          │ (tab)
 ┌────────▼───────────┐
@@ -22,23 +22,34 @@
 └────────────────────┘
 ```
 
-**Screen 1 — Ticket List (Home)**
-- Two tabs: **Moje zgłoszenia** (your reports) and **W okolicy** (neighbours' reports)
-- Your tab: thumbnail, title, date, status (draft / sent); FAB button (+) → opens photo capture
-- Neighbours tab: shows mock reports from nearby residents (see mock data below)
+**Screen 1 — Home (Ticket List)**
+- App title: **"Warszawiak"** (large serif heading) — display name; package stays `pl.warszawianin`
+- Warm gradient background (`#F8F9FB` → `#FAF8F6` → `#FEF7F3`)
+- Two pill-switcher tabs: **Moje zgłoszenia** (your reports) and **W okolicy** (neighbours' reports)
+- "Moje" tab: `white/80` rounded cards — thumbnail, serif title, address, relative time, status badge; FAB Camera button (primary, 64dp) → opens photo capture
+- "W okolicy" tab: mock neighbour cards — thumbnail, serif title, distance (MapPin), category, supporter count or "Dołącz do zgłoszenia" link
+- Empty state: "Brak zgłoszeń" + "Zgłoś pierwszy problem w okolicy"
 
 **Screen 2 — Photo Capture**
 - Two options: take a photo (camera) or pick from gallery
 - Also captures GPS location silently in background
 - Once photo is selected → auto-navigates to Screen 3
 
-**Screen 3 — AI Draft & Submit**
-- Shows the photo at the top
-- Shows loading spinner while Gemini analyses
-- Displays generated: title, category, description (in Polish)
-- User can edit any field
-- Two buttons: "Wyślij" (Submit via email) / "Popraw" (Refine — re-prompt AI with user feedback)
-- On submit → opens email intent pre-filled to kontakt@um.warszawa.pl with photo attached
+**Screen 3 — Report Preview & Submit**
+- Header: X back button, "Podgląd zgłoszenia" label, serif report title
+- AI detection badge: "Wykryto automatycznie" pill
+- 4:3 photo preview (`rounded-2xl`)
+- Details card: Kategoria, Lokalizacja (MapPin icon), Data zgłoszenia (Calendar icon)
+- AI report card: description + "✨ Wygenerowano przez AI" footnote
+- Department card ("Trafi do:") derived from category
+- "Popraw" subtle text button → bottom sheet for re-prompting AI (Story 07)
+- Bottom sticky bar: "Wyślij zgłoszenie" primary button with Send icon
+- On submit → fires email intent to `kontakt@um.warszawa.pl`, then navigates to Screen 4
+
+**Screen 4 — History**
+- Header: ArrowLeft back → Home, serif "Historia", subtitle "Twoje zgłoszenia i ich status"
+- List of all sent reports: serif title, status pill (Wysłane / Zrealizowane), address, date, category
+- Empty state: "Brak zgłoszeń" + "Utwórz pierwsze zgłoszenie" → Home
 
 ---
 
@@ -60,25 +71,26 @@
 
 ## Screens Breakdown
 
-### 1. TicketListScreen
+### 1. HomeScreen (TicketListScreen)
 ```
 ┌─────────────────────────────┐
-│  Warszawianin        [gear] │  ← TopBar
-├──────────────┬──────────────┤
-│ Moje zgłosz.│  W okolicy   │  ← Tabs
-├──────────────┴──────────────┤
+│  Warszawiak                 │  ← large serif h1 (no TopAppBar, no gear)
+│  Zobacz, co dzieje się...   │  ← muted subtitle
+├─────────────────────────────┤
+│ ┌─[Moje zgłoszenia]─[W okolicy]─┐ ← pill switcher (white/60 bg)
+│ └────────────────────────────────┘
 │  ┌───┬────────────────────┐ │
-│  │ 📷│ Dziura w chodniku   │ │  ← your ticket card
+│  │[📷]│ Dziura w chodniku  │ │  ← white/80 card
 │  │   │ ul. Marszałkowska  │ │
-│  │   │ 2 godz. temu • Wysłane│
+│  │   │ 2 godz. temu • [Wysłane]│
 │  └───┴────────────────────┘ │
 │  ┌───┬────────────────────┐ │
-│  │ 📷│ Zepsuta latarnia    │ │
+│  │[📷]│ Zepsuta latarnia   │ │
 │  │   │ ul. Puławska       │ │
-│  │   │ wczoraj • Szkic    │ │
+│  │   │ wczoraj • [Szkic]  │ │
 │  └───┴────────────────────┘ │
 │                             │
-│                     [ + ]   │  ← FAB
+│                    [📷 FAB] │  ← Camera FAB, primary, 64dp
 └─────────────────────────────┘
 ```
 
@@ -126,35 +138,57 @@
 └─────────────────────────────┘
 ```
 
-### 3. ReportDraftScreen
+### 3. ReportDraftScreen (Preview mode, per Figma)
 ```
 ┌─────────────────────────────┐
-│  ← Zgłoszenie               │
+│  [X]   Podgląd zgłoszenia   │  ← back (X), centred label
+│  Uszkodzona ławka           │  ← serif title h2
 ├─────────────────────────────┤
+│  ✅ Wykryto automatycznie   │  ← primary/10 AI badge
 │  ┌─────────────────────┐   │
-│  │   [photo preview]   │   │
+│  │   [4:3 photo]        │   │  ← rounded-2xl Coil image
 │  └─────────────────────┘   │
-│                             │
-│  📍 ul. Marszałkowska 12   │
-│                             │
-│  Kategoria: [Drogi ▼]      │
-│                             │
-│  Tytuł:                     │
-│  ┌─────────────────────┐   │
-│  │ Dziura w chodniku   │   │
+│  ┌─────────────────────┐   │  ← details card (bg-card border)
+│  │ Kategoria: ...       │   │
+│  │ 📍 Lokalizacja: ...  │   │
+│  │ 📅 Data: ...         │   │
 │  └─────────────────────┘   │
-│                             │
-│  Opis:                      │
-│  ┌─────────────────────┐   │
-│  │ Na chodniku przy ul. │   │
-│  │ Marszałkowskiej 12   │   │
-│  │ znajduje się głęboka │   │
-│  │ dziura o średnicy... │   │
+│  ┌─────────────────────┐   │  ← AI report card
+│  │ Opis zgłoszenia      │   │
+│  │ {AI description}     │   │
+│  │ ✨ Wygenerowano AI   │   │
 │  └─────────────────────┘   │
-│                             │
-│  [ 🔄 Popraw ]  [ ✉️ Wyślij ]│
+│  ┌─────────────────────┐   │  ← department card (accent/10)
+│  │ Trafi do: {dept}     │   │
+│  └─────────────────────┘   │
+│       [🔄 Popraw]          │  ← subtle text button → bottom sheet
+├─────────────────────────────┤
+│  [→ Wyślij zgłoszenie]     │  ← sticky bottom primary button
 └─────────────────────────────┘
 ```
+
+### 4. HistoryScreen (new — from Figma)
+```
+┌─────────────────────────────┐
+│  [←]  Historia              │  ← ArrowLeft back + serif h2
+│  Twoje zgłoszenia i status  │  ← muted subtitle
+├─────────────────────────────┤
+│  ┌──────────────────────┐   │
+│  │ Uszkodzona ławka  [✅]│   │  ← status pill top-right
+│  │ 📍 Park Łazienkowski │   │
+│  │ 6 maja 2026  Infrastr│   │
+│  └──────────────────────┘   │
+│  ┌──────────────────────┐   │
+│  │ Dziura w chodniku [🕐]│   │
+│  │ 📍 ul. Marszałkowska │   │
+│  │ 3 maja 2026   Drogi  │   │
+│  └──────────────────────┘   │
+└─────────────────────────────┘
+```
+
+Status pills:
+- SENT → "Wysłane" (`primary/10` blue, `Clock` icon)
+- DRAFT → "Szkic" (grey) — should not normally appear here
 
 ---
 
@@ -362,18 +396,17 @@ Wysłano z aplikacji Warszawianin
 
 - [ ] **T1** — Project scaffold (Gradle, Hilt, Compose, dependencies)
 - [ ] **T2** — Room database + Report entity + DAO
-- [ ] **T3** — TicketListScreen + ViewModel (reads from Room)
+- [ ] **T3** — HomeScreen (TicketList) + ViewModel — two tabs, neighbour feed, gradient, pill switcher
 - [ ] **T4** — PhotoCaptureScreen (CameraX + gallery picker)
 - [ ] **T5** — GPS location capture on photo taken
 - [ ] **T6** — Gemini integration (send photo + location → get JSON)
-- [ ] **T7** — ReportDraftScreen (display AI result, allow edits)
-- [ ] **T8** — "Popraw" flow (re-send to Gemini with user corrections)
-- [ ] **T9** — "Wyślij" flow (compose email intent, save as SENT)
-- [ ] **T10** — Permissions handling (camera, location, storage)
-- [ ] **T11** — Basic error states & loading UI
-- [ ] **T12** — Reverse geocoding (GPS → address string)
-- [ ] **T13** — Neighbourhood feed tab with mock `NeighbourReport` data
-- [ ] **T14** — NeighbourReportCard composable (photo, title, author, relative time)
+- [ ] **T7** — ReportDraftScreen (preview mode per Figma: AI badge, details card, department card, sticky send button)
+- [ ] **T8** — "Popraw" flow (bottom sheet re-prompt AI with user feedback)
+- [ ] **T9** — "Wyślij zgłoszenie" flow (compose email intent, save as SENT, navigate to History)
+- [ ] **T10** — HistoryScreen (list all sent reports, status pills, back to Home)
+- [ ] **T11** — Permissions handling (camera, location, storage)
+- [ ] **T12** — Basic error states & loading UI
+- [ ] **T13** — Reverse geocoding (GPS → address string)
 
 ---
 
