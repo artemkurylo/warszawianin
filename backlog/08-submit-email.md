@@ -1,23 +1,25 @@
-# Story 08 — Submit via Email ("Wyślij")
+# Story 08 — Submit via Email ("Wyślij zgłoszenie")
 
 ## Goal
 
-Compose and send the report via the system email app using `ACTION_SEND` intent with photo attachment.
+Compose and send the report via the system email app using `ACTION_SEND` intent with photo attachment. After sending, navigate to HistoryScreen.
 
 ## Depends On
 
 - Story 06 (Report Draft Screen)
+- Story 12 (History Screen — navigation target)
 
 ## Acceptance Criteria
 
-- [ ] "Wyślij" button composes an email intent pre-filled per template in IDEA.md
+- [ ] "Wyślij zgłoszenie" button fires an `ACTION_SEND` email intent pre-filled per template in IDEA.md
 - [ ] To: `kontakt@um.warszawa.pl`
 - [ ] Subject: `Zgłoszenie: {title}`
-- [ ] Body: formatted text with category, location, description
+- [ ] Body: formatted text with category, location, description, sign-off
 - [ ] Photo attached via FileProvider URI
 - [ ] After intent fires, report status updated to `SENT` with `sentAt` timestamp
-- [ ] User is navigated back to TicketListScreen
+- [ ] User is navigated to **HistoryScreen** (not back to ticket list) — matches Figma flow
 - [ ] Works with Gmail, Outlook, and default email apps
+- [ ] If no email app is installed: Toast "Brak aplikacji email"
 
 ## Email Template (from IDEA.md)
 
@@ -48,8 +50,10 @@ app/src/main/java/pl/warszawianin/
 │   └── email/
 │       └── EmailComposer.kt          # CREATE — builds the Intent
 ├── ui/screens/reportdraft/
-│   ├── ReportDraftScreen.kt          # MODIFY — wire Wyślij button
+│   ├── ReportDraftScreen.kt          # MODIFY — wire "Wyślij zgłoszenie" button
 │   └── ReportDraftViewModel.kt       # MODIFY — add submit action
+├── navigation/
+│   └── NavGraph.kt                   # MODIFY — add HistoryScreen destination
 ```
 
 ## Implementation Notes
@@ -65,4 +69,4 @@ app/src/main/java/pl/warszawianin/
   ```
 - `photoContentUri` must come from `FileProvider.getUriForFile()` — reuse provider from Story 03
 - Mark as SENT optimistically after `startActivity` (we can't know if user actually sent)
-- If no email app is available, show a Toast: "Brak aplikacji email"
+- Navigate to `history` route after marking SENT — from there user can tap back to Home

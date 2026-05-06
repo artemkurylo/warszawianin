@@ -13,10 +13,11 @@ Stories for AI agent implementation. Each file is a self-contained unit of work.
 | 5 | `05-gemini-integration.md` | 03, 04 |
 | 6 | `06-report-draft-screen.md` | 05 |
 | 7 | `07-refine-flow.md` | 06 |
-| 8 | `08-submit-email.md` | 06 |
+| 8 | `08-submit-email.md` | 06, 12 |
 | 9 | `09-permissions-handling.md` | 03, 04 |
 | 10 | `10-error-states-loading.md` | All above |
 | 11 | `11-reverse-geocoding.md` | 04 |
+| 12 | `12-history-screen.md` | 01, 08 |
 
 ## Rules for the implementing agent
 
