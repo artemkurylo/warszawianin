@@ -8,7 +8,8 @@ object MockNeighbourData {
             category = "Drogi",
             distance = "340 m",
             supporters = 5,
-            address = "ul. Marszałkowska 12"
+            address = "ul. Marszałkowska 12",
+            demoPhotoAsset = "pothole.jpg"
         ),
         NeighbourReport(
             id = 2,
@@ -16,7 +17,8 @@ object MockNeighbourData {
             category = "Oświetlenie",
             distance = "520 m",
             supporters = 3,
-            address = "ul. Puławska 45"
+            address = "ul. Puławska 45",
+            demoPhotoAsset = "streetlight.jpg"
         ),
         NeighbourReport(
             id = 3,
@@ -24,7 +26,8 @@ object MockNeighbourData {
             category = "Czystość",
             distance = "180 m",
             supporters = 8,
-            address = "al. Jerozolimskie 22"
+            address = "al. Jerozolimskie 22",
+            demoPhotoAsset = "trash.jpg"
         ),
         NeighbourReport(
             id = 4,
@@ -32,7 +35,8 @@ object MockNeighbourData {
             category = "Infrastruktura",
             distance = "750 m",
             supporters = 2,
-            address = "Park Łazienkowski"
+            address = "Park Łazienkowski",
+            demoPhotoAsset = "broken_bench.jpg"
         ),
         NeighbourReport(
             id = 5,
@@ -40,7 +44,8 @@ object MockNeighbourData {
             category = "Drogi",
             distance = "1.2 km",
             supporters = 12,
-            address = "ul. Nowy Świat 8"
+            address = "ul. Nowy Świat 8",
+            demoPhotoAsset = "sidewalk.jpg"
         ),
         NeighbourReport(
             id = 6,
@@ -48,7 +53,11 @@ object MockNeighbourData {
             category = "Zieleń",
             distance = "900 m",
             supporters = 0,
-            address = "ul. Krakowskie Przedmieście"
+            address = "ul. Krakowskie Przedmieście",
+            demoPhotoAsset = "fallen_tree.jpg"
         )
     )
+
+    /** The primary demo photo used when user "takes a photo" in demo mode */
+    const val PRIMARY_DEMO_PHOTO = "pothole.jpg"
 }

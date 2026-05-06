@@ -16,9 +16,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0"
-
-        val geminiKey = project.findProperty("GEMINI_API_KEY") as? String ?: ""
-        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
     }
 
     buildTypes {
@@ -83,9 +80,6 @@ dependencies {
 
     // Location
     implementation(libs.play.services.location)
-
-    // Gemini AI
-    implementation(libs.generative.ai)
 
     // Image Loading
     implementation(libs.coil.compose)
