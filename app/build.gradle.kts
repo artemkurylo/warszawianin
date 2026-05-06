@@ -16,6 +16,9 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0"
+
+        val geminiKey = project.findProperty("GEMINI_API_KEY") as? String ?: ""
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
     }
 
     buildTypes {
@@ -47,6 +50,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
 
     // Compose
@@ -82,4 +86,16 @@ dependencies {
 
     // Gemini AI
     implementation(libs.generative.ai)
+
+    // Image Loading
+    implementation(libs.coil.compose)
+
+    // Testing
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.arch.core.testing)
+    testImplementation(libs.robolectric)
 }
